@@ -1,0 +1,113 @@
+Compelte Guide for Shutdown app
+
+1- Run this command in terminal
+
+pip install pystray pillow
+
+
+2- Main Code
+
+import os
+import pystray
+from pystray import MenuItem as Item
+from PIL import Image, ImageDraw
+
+
+# ---------- SYSTEM ACTIONS ----------
+
+def restart(icon, item):
+    os.system("shutdown /r /t 0")
+
+def restart_time(icon, item):
+    os.system("shutdown /r /t 30")
+
+def logout(icon, item):
+    os.system("shutdown /l")
+
+def shutdown(icon, item):
+    os.system("shutdown /s /t 0")
+
+def exit_app(icon, item):
+    icon.stop()
+
+
+# ---------- FIXED FULL POWER ICON ----------
+
+def create_power_icon():
+    size = 256
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+
+    center = size // 2
+    radius = 90
+    thickness = 28
+
+    d.arc(
+        [center - radius, center - radius, center + radius, center + radius],
+        start=40,
+        end=320,
+        fill="white",
+        width=thickness
+    )
+
+    line_length = 80
+    d.line(
+        [
+            (center, center - radius + 10),
+            (center, center - radius + line_length)
+        ],
+        fill="white",
+        width=thickness
+    )
+
+    return img.resize((64, 64), Image.LANCZOS)
+
+
+# ---------- TRAY ICON APP ----------
+
+def main():
+    menu = pystray.Menu(
+        Item("Restart", restart),
+        Item("Restart (30s)", restart_time),
+        Item("Log Out", logout),
+        Item("Shut Down", shutdown),
+        Item("Exit", exit_app)
+    )
+
+    icon = pystray.Icon(
+        "ShutdownTray",
+        create_power_icon(),
+        "System Power Controls",
+        menu
+    )
+
+    icon.run()
+
+
+if __name__ == "__main__":
+    main()
+
+
+3- Run this command
+
+pip install pyinstaller
+
+
+4- Run this command
+
+pyinstaller --onefile --noconsole shutdown_tray_app.py
+
+
+
+Step 5 – Make it start automatically when Windows starts
+
+So it feels “permanent” like built-in stuff:
+
+Press Win + R
+
+Type: shell:startup
+→ Press Enter
+→ This opens your Startup folder.
+
+Copy shutdown_tray_app.exe from dist into this Startup folder
+(or copy a shortcut to it there)
